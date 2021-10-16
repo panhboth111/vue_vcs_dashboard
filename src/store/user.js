@@ -10,6 +10,7 @@ export default {
   },
   actions: {
     async init(ctx) {
+      
       const access_token = localStorage.getItem("access_token");
       if (access_token != "null") {
         const res = await axios.get("/admin/user", {
@@ -21,6 +22,9 @@ export default {
         } else {
           localStorage.setItem("loggedIn", 0);
         }
+      }
+      else {
+        localStorage.setItem("loggedIn", 0);
       }
     },
   },

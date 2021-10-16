@@ -43,7 +43,7 @@ router.beforeEach((to, from, next) => {
     }
   }
   if (to.fullPath !== "/login") {
-    if (loggedIn == 0) {
+    if (loggedIn == 0 || !loggedIn) {
       next("/login");
     }
   }
