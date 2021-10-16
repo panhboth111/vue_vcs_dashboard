@@ -20,6 +20,15 @@
             dense
             hide-details
             outlined
+            placeholder="Display Name"
+            v-model="userObj.displayName"
+            type="text"
+            class="mb-3"
+          ></v-text-field>
+          <v-text-field
+            dense
+            hide-details
+            outlined
             placeholder="Password*"
             v-model="userObj.password"
             :append-icon="show ? 'mdi-eye' : 'mdi-eye-remove'"
@@ -59,6 +68,8 @@
           ></v-text-field>
           <v-select
             :items="roles"
+            :item-text="'name'"
+            :item-value="'id'"
             label="Role"
             v-model="userObj.role"
             outlined
@@ -69,6 +80,10 @@
             v-model="userObj.active"
             :label="userObj.active ? 'activated' : 'disabled'"
           ></v-switch>
+
+          <div v-if="errorMessage.display" class="red--text mb-2">
+            {{ errorMessage.message }}
+          </div>
           <v-divider></v-divider>
 
           <v-card-actions>
@@ -96,9 +111,14 @@ export default {
     closeDialog: Function,
     userObj: Object,
     editing: Boolean,
+    errorMessage: Object,
   },
   data: () => ({
-    roles: ["admin", "user"],
+    roles: [
+      { name: "ALPHA", id: 0 },
+      { name: "ADMIN", id: 1 },
+      { name: "USER", id: 2 },
+    ],
     show: false,
     icons: {
       visible,

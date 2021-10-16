@@ -7,6 +7,7 @@
     <v-btn link text v-for="(i, n) in navItems" :key="n" :to="i.to">
       {{ i.title }}
     </v-btn>
+
     <v-menu transition="slide-y-transition" bottom offset-y>
       <template v-slot:activator="{ on, attrs }">
         <v-btn
@@ -20,7 +21,7 @@
           <v-icon left dense>
             {{ icons.account }}
           </v-icon>
-          NEAK PANHBOTH
+          {{ $store.state.user.user.username }}
           <v-icon right>
             {{ icons.dropdown }}
           </v-icon>
@@ -31,7 +32,7 @@
           <v-btn block text link to="/profile">Profile</v-btn>
         </v-list-item>
         <v-list-item>
-          <v-btn block text link to="/login">Log Out</v-btn>
+          <v-btn block text @click="logout">Log Out</v-btn>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -51,6 +52,13 @@ export default {
       { title: "Meetings", to: "/meetings" },
     ],
   }),
+  methods: {
+    logout() {
+      localStorage.setItem("loggedIn", 0);
+      localStorage.setItem("access_token", null);
+      this.$router.push("/login");
+    },
+  },
 };
 </script>
 

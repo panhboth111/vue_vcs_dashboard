@@ -17,5 +17,8 @@ export default {
   data: () => ({
     //
   }),
+  async created() {
+    await this.$store.dispatch("user/init");
+  },
 };
 </script>

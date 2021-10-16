@@ -35,4 +35,19 @@ const router = new VueRouter({
   routes,
 });
 
+router.beforeEach((to, from, next) => {
+  const loggedIn = localStorage.getItem("loggedIn");
+  if (to.fullPath === "/login") {
+    if (loggedIn == 1) {
+      next("/");
+    }
+  }
+  if (to.fullPath !== "/login") {
+    if (loggedIn == 0) {
+      next("/login");
+    }
+  }
+  next();
+});
+
 export default router;

@@ -31,6 +31,7 @@
               :userObj="newUser"
               :closeDialog="closeCreateDialog"
               :dialogConfirm="submitCreateForm"
+              :errorMessage="errorMessage"
               dialogTitle="Creating a new user"
               :editing="false"
             />
@@ -39,7 +40,7 @@
         <v-data-table
           :headers="headers"
           :items="users"
-          :items-per-page="5"
+          :items-per-page="15"
           :search="search"
           class="elevation-0"
           height="77vh"
@@ -55,12 +56,17 @@
               </v-icon></v-btn
             >
           </template>
-          <template v-slot:[`item.active`]="{ item }">
+          <template v-slot:[`item.role`]="{ item }">
+            <div v-if="item.role == 0">ALPHA</div>
+            <div v-else-if="item.role == 1">ADMIN</div>
+            <div v-else-if="item.role == 2">USER</div>
+          </template>
+          <template v-slot:[`item.isActive`]="{ item }">
             <v-chip
               class="white--text font-weight-light"
-              :color="item.active ? 'green' : 'amber'"
+              :color="item.isActive ? 'green' : 'amber'"
             >
-              {{ item.active ? "activated" : "disabled" }}
+              {{ item.isActive ? "activated" : "disabled" }}
             </v-chip>
           </template>
         </v-data-table>
@@ -70,112 +76,125 @@
         :userObj="editingUser"
         :closeDialog="closeEditDialog"
         :dialogConfirm="submitEditForm"
+        :errorMessage="errorMessage"
         dialogTitle="Editing user information"
         :editing="true"
       />
+      <LoadingDialog :dialog="loadingDialog" />
     </v-card>
   </v-container>
 </template>
 
 <script>
 import UserDialog from "../components/Home/UserDialog.vue";
+import LoadingDialog from "../components/Reusables/LoadingDialog.vue";
+import axios from "axios";
 export default {
   name: "Home",
 
   components: {
     UserDialog,
+    LoadingDialog,
   },
   data: () => ({
     createDialog: false,
     editDialog: false,
+    loadingDialog: false,
+    errorMessage: {
+      display: false,
+      message: "",
+    },
     newUser: {
       username: "",
       email: "",
+      displayName: "",
       phone: "",
-      role: "",
+      role: 2,
+
       password: "",
       confirmPassword: "",
     },
     editingUser: {},
     search: "",
-    roles: ["admin", "user"],
+    roles: [
+      { name: "ALPHA", id: 0 },
+      { name: "ADMIN", id: 1 },
+      { name: "USER", id: 2 },
+      { name: "ROUGE", id: 3 },
+    ],
     headers: [
       {
-        text: "Username",
+        text: "ID",
         align: "start",
+        value: "id",
+      },
+      {
+        text: "Username",
         value: "username",
       },
       { text: "Phone", value: "phone" },
       { text: "Email", value: "email" },
       { text: "Role", value: "role" },
-      { text: "Status", value: "active" },
-
+      { text: "Status", value: "isActive" },
+      { text: "Status", value: "isActive", align: " d-none" },
       { text: "Action", value: "actions" },
     ],
     users: [],
   }),
   methods: {
-    initialize() {
-      this.users = [
-        {
-          username: "noobmaster69",
-          phone: "012 123 123",
-          email: "noobmaster@gmail.com",
-          password: "12345678",
-          role: "admin",
-          active: true,
-          id: 0,
-        },
-        {
-          username: "johncena",
-          phone: "012 123 123",
-          password: "12345678",
-          email: "johncena@gmail.com",
-          role: "user",
-          active: true,
-          id: 1,
-        },
-        {
-          username: "superman",
-          phone: "012 123 123",
-          email: "supes@gmail.com",
-          password: "12345678",
-          role: "user",
-          active: false,
-          id: 2,
-        },
-        {
-          username: "dinosaur",
-          phone: "012 123 123",
-          email: "dinoboy@gmail.com",
-          password: "12345678",
-          role: "user",
-          active: false,
-          id: 3,
-        },
-      ];
+    async initialize() {
+      const access_token = localStorage.getItem("access_token");
+      const res = await axios.get("/admin/user/all", {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
+      this.users = res.data;
     },
     closeCreateDialog() {
       this.createDialog = false;
+      this.errorMessage = {
+        display: false,
+        message: "",
+      };
       this.newUser = {};
     },
     closeEditDialog() {
       this.editDialog = false;
+      this.errorMessage = {
+        display: false,
+        message: "",
+      };
       this.editingUser = {};
     },
-    submitCreateForm() {
-      this.createDialog = false;
-      this.newUser = { ...this.newUser, id: this.users.length };
-      this.users.push(this.newUser);
-      this.newUser = {
-        username: "",
-        email: "",
-        phone: "",
-        role: "",
-        password: "",
-        confirmPassword: "",
-        active: true,
-      };
+    async submitCreateForm() {
+      try {
+        this.loadingDialog = true;
+        const access_token = localStorage.getItem("access_token");
+        const { confirmPassword, ...data } = this.newUser;
+        const res = await axios.post("/admin/user", data, {
+          headers: { Authorization: `Bearer ${access_token}` },
+        });
+        console.log(res.data);
+        if (res.status == 201) {
+          this.users.push(res.data);
+          this.createDialog = false;
+        }
+        this.loadingDialog = false;
+
+        this.newUser = {
+          username: "",
+          email: "",
+          phone: "",
+          role: "",
+          password: "",
+          confirmPassword: "",
+          active: true,
+        };
+      } catch (error) {
+        console.log(error.message);
+        this.errorMessage.display = true;
+        this.errorMessage.message = "Something went wrong. Please try again.";
+        this.loadingDialog = false;
+      }
     },
     submitEditForm() {
       this.editDialog = false;
