@@ -37,17 +37,14 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   const loggedIn = localStorage.getItem("loggedIn");
-  if (to.fullPath === "/login") {
-    if (loggedIn == 1) {
-      next("/");
-    }
-  }
-  if (to.fullPath !== "/login") {
-    if (loggedIn == 0 || !loggedIn) {
-      next("/login");
-    }
-  }
-  next();
+  console.log(loggedIn);
+  if (to.fullPath === "/login" && loggedIn == 1) {
+    next("/");
+  } else if (to.fullPath !== "/login" && (loggedIn == 0 || !loggedIn)) {
+    const requestedPath = window.location.pathname;
+    localStorage.setItem("requestedPath", requestedPath);
+    next("/login");
+  } else next();
 });
 
 export default router;
