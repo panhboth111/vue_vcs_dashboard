@@ -3,12 +3,21 @@
     <v-toolbar-title>ADMIN</v-toolbar-title>
 
     <v-spacer></v-spacer>
+    <v-btn icon v-if="$vuetify.breakpoint.mdAndDown" @click="toggleDrawer">
+      <v-icon>{{ icons.bars }}</v-icon></v-btn
+    >
+    <div v-if="$vuetify.breakpoint.mdAndUp">
+      <v-btn link text v-for="(i, n) in navItems" :key="n" :to="i.to">
+        {{ i.title }}
+      </v-btn>
+    </div>
 
-    <v-btn link text v-for="(i, n) in navItems" :key="n" :to="i.to">
-      {{ i.title }}
-    </v-btn>
-
-    <v-menu transition="slide-y-transition" bottom offset-y>
+    <v-menu
+      transition="slide-y-transition"
+      bottom
+      offset-y
+      v-if="$vuetify.breakpoint.mdAndUp"
+    >
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           v-bind="attrs"
@@ -40,12 +49,20 @@
 </template>
 
 <script>
-import { mdiAccount as account, mdiMenuDown as dropdown } from "@mdi/js";
+import {
+  mdiAccount as account,
+  mdiMenuDown as dropdown,
+  mdiMenu as bars,
+} from "@mdi/js";
 export default {
+  props: {
+    toggleDrawer: Function,
+  },
   data: () => ({
     icons: {
       account,
       dropdown,
+      bars,
     },
     navItems: [
       { title: "Users", to: "/" },

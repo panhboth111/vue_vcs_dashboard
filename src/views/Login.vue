@@ -1,7 +1,7 @@
 <template>
   <v-container fluid class="login_view grey lighten-3">
     <v-card class="login_card">
-      <div><LoginThumbnail /></div>
+      <div v-if="$vuetify.breakpoint.mdAndUp"><LoginThumbnail /></div>
       <div><LoginForm /></div>
     </v-card>
   </v-container>
@@ -22,14 +22,18 @@ export default {
   justify-content: center;
   align-items: center;
   background: "#EEEEEE";
-  padding: 10rem 15rem;
 }
 .login_card {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  margin-top: 5rem;
-  margin-bottom: 5rem;
   height: 100%;
   width: 100%;
+}
+@media screen and (min-width: 1025px) {
+  .login_view {
+    padding: 10rem 15rem;
+  }
+  .login_card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 }
 </style>

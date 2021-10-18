@@ -37,6 +37,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "Home",
 
@@ -56,27 +57,17 @@ export default {
     meetings: [],
   }),
   methods: {
-    initialize() {
-      this.meetings = [
-        {
-          meetingCode: "1234",
-          meetingName: "Department meeting",
-          meetingDate: "12 Oct 2021",
-          meetingTime: "1:00 - 2:00 PM",
-        },
-        {
-          meetingCode: "asdf",
-          meetingName: "Internal status update",
-          meetingDate: "12 Oct 2021",
-          meetingTime: "1:00 - 2:00 PM",
-        },
-        {
-          meetingCode: "auyty",
-          meetingName: "Semester review",
-          meetingDate: "12 Oct 2021",
-          meetingTime: "1:00 - 2:00 PM",
-        },
-      ];
+    async initialize() {
+      try {
+        const access_token = localStorage.getItem("access_token");
+        const res = await axios.get("/admin/meeting/all?page=1&limit=1", {
+          headers: { Authorization: `Bearer ${access_token}` },
+        });
+        console.log(res.data);
+        this.meetings = res.data["meetings"];
+      } catch (error) {
+        console.log(error.message);
+      }
     },
   },
   created() {
