@@ -80,6 +80,7 @@
           <v-switch
             v-if="editing"
             v-model="userObj.isActive"
+            readonly
             :label="userObj.isActive ? 'activated' : 'disabled'"
           ></v-switch>
 
