@@ -204,10 +204,10 @@ export default {
       try {
         this.loadingDialog = true;
         const access_token = localStorage.getItem("access_token");
-        const { displayName, phone, email, isActive } = this.editingUser;
+        const { displayName, phone, email, isActive, role } = this.editingUser;
         const res = await axios.put(
           `/admin/user/${this.editingUser.id}`,
-          { displayName, phone, email, isActive },
+          { displayName, phone, email, isActive, role },
           {
             headers: { Authorization: `Bearer ${access_token}` },
           }
