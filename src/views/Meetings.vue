@@ -48,11 +48,11 @@ export default {
       {
         text: "Meeting Code",
         align: "start",
-        value: "meetingCode",
+        value: "id",
       },
-      { text: "Meeting Name", value: "meetingName" },
-      { text: "Meeting Date", value: "meetingDate" },
-      { text: "Meeting time", value: "meetingTime" },
+      { text: "Meeting Name", value: "title" },
+      { text: "Meeting Date", value: "start_date" },
+      { text: "Meeting time", value: "end_date" },
     ],
     meetings: [],
   }),
@@ -60,10 +60,9 @@ export default {
     async initialize() {
       try {
         const access_token = localStorage.getItem("access_token");
-        const res = await axios.get("/admin/meeting/all?page=1&limit=1", {
+        const res = await axios.get("/admin/meeting/all?page=1&limit=10", {
           headers: { Authorization: `Bearer ${access_token}` },
         });
-        console.log(res.data);
         this.meetings = res.data["meetings"];
       } catch (error) {
         console.log(error.message);
