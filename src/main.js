@@ -5,7 +5,7 @@ import store from "./store";
 import vuetify from "./plugins/vuetify";
 import axios from "axios";
 
-axios.defaults.baseURL = "http://172.104.47.216:3000/api";
+axios.defaults.baseURL = "https://rcaf-vcs-api.sarkhsolution.com/api";
 
 Vue.config.productionTip = false;
 

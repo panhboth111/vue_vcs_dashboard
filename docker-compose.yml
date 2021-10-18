@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  vcs-dashboard:
+    container_name: vcs-dashboard
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8090:8090
