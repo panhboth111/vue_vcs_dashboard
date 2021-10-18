@@ -13,6 +13,7 @@
             outlined
             placeholder="Username"
             v-model="userObj.username"
+            v-if="!editing"
             type="text"
             class="mb-3"
           ></v-text-field>
@@ -29,6 +30,7 @@
             dense
             hide-details
             outlined
+            v-if="!editing"
             placeholder="Password*"
             v-model="userObj.password"
             :append-icon="show ? 'mdi-eye' : 'mdi-eye-remove'"
@@ -77,8 +79,8 @@
           ></v-select>
           <v-switch
             v-if="editing"
-            v-model="userObj.active"
-            :label="userObj.active ? 'activated' : 'disabled'"
+            v-model="userObj.isActive"
+            :label="userObj.isActive ? 'activated' : 'disabled'"
           ></v-switch>
 
           <div v-if="errorMessage.display" class="red--text mb-2">

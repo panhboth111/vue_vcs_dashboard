@@ -132,6 +132,10 @@ export default {
         text: "Username",
         value: "username",
       },
+      {
+        text: "Display Name",
+        value: "displayName",
+      },
       { text: "Phone", value: "phone" },
       { text: "Email", value: "email" },
       { text: "Role", value: "role" },
@@ -196,20 +200,48 @@ export default {
         this.loadingDialog = false;
       }
     },
-    submitEditForm() {
-      this.editDialog = false;
-      this.users = this.users.map((u) =>
-        u.id !== this.editingUser.id ? u : this.editingUser
-      );
-      this.editingUser = {};
+    async submitEditForm() {
+      try {
+        this.loadingDialog = true;
+        const access_token = localStorage.getItem("access_token");
+        const { displayName, phone, email, isActive } = this.editingUser;
+        const res = await axios.put(
+          `/admin/user/${this.editingUser.id}`,
+          { displayName, phone, email, isActive },
+          {
+            headers: { Authorization: `Bearer ${access_token}` },
+          }
+        );
+        console.log(res.data);
+        this.loadingDialog = false;
+        this.editDialog = false;
+
+        this.users = this.users.map((u) =>
+          u.id !== this.editingUser.id ? u : this.editingUser
+        );
+        this.editingUser = {};
+      } catch (error) {
+        this.errorMessage.display = true;
+
+        this.errorMessage.message = "Something went wrong. Please try again.";
+        this.loadingDialog = false;
+      }
     },
     editUserBtnClicked(user) {
       this.editingUser = { ...user };
       this.editDialog = true;
     },
 
-    deleteUser(user) {
-      this.users = this.users.filter((u) => u.id !== user.id);
+    async deleteUser(user) {
+      try {
+        const access_token = localStorage.getItem("access_token");
+        const res = await axios.delete(`/admin/user/${user.id}`, {
+          headers: { Authorization: `Bearer ${access_token}` },
+        });
+        this.users = this.users.filter((u) => u.id !== user.id);
+      } catch (error) {
+        console.log(error.message);
+      }
     },
   },
   created() {

@@ -2,11 +2,20 @@ import axios from "axios";
 export default {
   namespaced: true,
   state: {
-    user: { username: "" },
+    user: {},
+    displayUser: {},
   },
   getters: {},
   mutations: {
-    init: (state, user) => (state.user = user),
+    init: (state, user) => {
+      state.user = { ...user };
+      state.displayUser = { ...user };
+    },
+    resetUser: (state, user) => (state.displayUser = { ...state.user }),
+    setUser: (state, data) => {
+      state.user = { ...data };
+      state.displayUser = { ...data };
+    },
   },
   actions: {
     async init(ctx) {
@@ -29,6 +38,12 @@ export default {
       } catch (error) {
         localStorage.setItem("loggedIn", 0);
       }
+    },
+    resetUser(ctx) {
+      ctx.commit("resetUser");
+    },
+    editUser(ctx, data) {
+      ctx.commit("setUser", data);
     },
   },
 };

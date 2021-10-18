@@ -3,7 +3,7 @@
     <div class="profile-cover d-flex justify-center align-center">
       <div>
         <v-avatar color="primary" size="150">
-          <span class="white--text text-h2">CJ</span>
+          <span class="white--text text-h2">{{ user.username[0] }}</span>
         </v-avatar>
       </div>
     </div>
@@ -14,12 +14,7 @@
           <span class="text-h4 font-weight-bold mr-2">User Information</span
           ><v-tooltip bottom>
             <template v-slot:activator="{ on: tooltip }">
-              <v-btn
-                icon
-                class="mb-2"
-                @click="toggleEdit"
-                v-bind="attrs"
-                v-on="{ ...tooltip, ...menu }"
+              <v-btn icon class="mb-2" @click="toggleEdit" v-on="{ ...tooltip }"
                 ><v-icon>{{ icons.edit }}</v-icon></v-btn
               >
             </template>
@@ -31,8 +26,7 @@
                 icon
                 class="mb-2"
                 @click="changePasswordDialog = !changePasswordDialog"
-                v-bind="attrs"
-                v-on="{ ...tooltip, ...menu }"
+                v-on="{ ...tooltip }"
                 ><v-icon>{{ icons.password }}</v-icon></v-btn
               >
             </template>
@@ -44,16 +38,18 @@
                 Change Password
               </div>
               <v-container>
-                <v-form>
+                <v-form @submit.prevent="changePassword">
                   <v-text-field
                     type="password"
                     placeholder="current password"
+                    v-model="changePasswordObj.password"
                     outlined
                     dense
                     hide-details
                     class="mb-1"
                   ></v-text-field>
                   <v-text-field
+                    v-model="changePasswordObj.newPassword"
                     type="password"
                     placeholder="New password"
                     outlined
@@ -63,11 +59,13 @@
                   ></v-text-field>
                   <v-text-field
                     type="password"
+                    v-model="changePasswordObj.confirmPassword"
                     placeholder="Confirm new password"
                     outlined
                     dense
                     hide-details
                   ></v-text-field>
+                  <div class="red--text">{{ errorMsg }}</div>
                   <v-btn type="submit" block color="primary" class="mt-2">
                     Save
                   </v-btn>
@@ -78,7 +76,7 @@
         </div>
 
         <div class="mt-4">
-          <v-form>
+          <v-form @submit.prevent="submit">
             <v-text-field
               v-for="(f, n) in fields"
               :key="n"
@@ -116,37 +114,85 @@
 
 <script>
 import { mdiPencil as edit, mdiLock as password } from "@mdi/js";
+import axios from "axios";
 export default {
   data: () => ({
     icons: { edit, password },
-    user: {},
     fields: [
-      { label: "Username", property: "username", type: "text" },
       { label: "Email", property: "email", type: "text" },
       { label: "Phone", property: "phone", type: "text" },
     ],
     disabled: true,
     changePasswordDialog: false,
-  }),
-  methods: {
-    initialize() {
-      this.user = { ...this.$store.state.user.user };
+    changePasswordObj: {
+      password: "",
+      newPassword: "",
+      confirmPassword: "",
     },
+    errorMsg: null,
+  }),
+  computed: {
+    user() {
+      return this.$store.state.user.displayUser;
+    },
+  },
+  methods: {
     toggleEdit() {
       if (!this.disabled) {
-        this.user = { ...this.$store.state.user.user };
+        this.$store.dispatch("user/resetUser");
       }
       this.disabled = !this.disabled;
     },
+
     cancelEdit() {
-      this.user = { ...this.$store.state.user.user };
+      this.$store.dispatch("user/resetUser");
 
       this.disabled = true;
     },
+    async changePassword() {
+      try {
+        if (
+          this.changePasswordObj.newPassword !==
+          this.changePasswordObj.confirmPassword
+        ) {
+          this.errorMsg = "new password and confirm password must match";
+        } else {
+          const access_token = localStorage.getItem("access_token");
+          const res = await axios.put(
+            "/user/changepassword",
+            this.changePasswordObj,
+            {
+              headers: { Authorization: `Bearer ${access_token}` },
+            }
+          );
+          this.changePasswordDialog = false;
+          this.changePasswordObj = {
+            password: "",
+            newPassword: "",
+            confirmPassword: "",
+          };
+        }
+      } catch (error) {
+        this.errorMsg = "Incorrect password";
+      }
+    },
+    async submit() {
+      try {
+        const {
+          username,
+          ...submitUserData
+        } = this.$store.state.user.displayUser;
+        const access_token = localStorage.getItem("access_token");
+        const res = await axios.put("/user", submitUserData, {
+          headers: { Authorization: `Bearer ${access_token}` },
+        });
+        this.disabled = true;
+      } catch (error) {
+        console.log(error);
+      }
+    },
   },
-  created() {
-    this.initialize();
-  },
+  created() {},
 };
 </script>
 

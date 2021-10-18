@@ -27,10 +27,26 @@
           :search="search"
           :headers="headers"
           :items="meetings"
-          :items-per-page="5"
+          :items-per-page="10"
           class="elevation-0"
           height="77vh"
-        ></v-data-table>
+        >
+          <template v-slot:[`item.title`]="{ item }">
+            {{ item.title || "N/A" }}
+          </template>
+          <template v-slot:[`item.start_date`]="{ item }">
+            <div v-if="item.start_date">
+              {{ formatDateTime(item.start_date) }}
+            </div>
+            <div v-else>N/A</div>
+          </template>
+          <template v-slot:[`item.end_date`]="{ item }">
+            <div v-if="item.end_date">
+              {{ formatDateTime(item.end_date) }}
+            </div>
+            <div v-else>N/A</div>
+          </template>
+        </v-data-table>
       </v-container>
     </v-card>
   </v-container>
@@ -67,6 +83,19 @@ export default {
       } catch (error) {
         console.log(error.message);
       }
+    },
+    formatDateTime(d) {
+      const d1 = d.split("T")[0];
+      const date = new Date(d);
+      var hours = date.getHours();
+
+      var minutes = date.getMinutes();
+      var ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      var strTime = hours + ":" + minutes + " " + ampm;
+      return d1 + " " + strTime;
     },
   },
   created() {
